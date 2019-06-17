@@ -533,4 +533,4 @@ private:
 
 } // end namespace McciCatenaSht3x
 
-#endif /* unndef(_CATENA_SHT3X_H_) */
+#endif /* undef(_CATENA_SHT3X_H_) */
