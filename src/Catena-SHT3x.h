@@ -24,44 +24,44 @@ namespace McciCatenaSht3x {
 
 
 // create a version number for comparison
-static constexpr uint32_t 
+static constexpr std::uint32_t 
 makeVersion(
-    uint8_t major, uint8_t minor, uint8_t patch, uint8_t local = 0
+    std::uint8_t major, std::uint8_t minor, std::uint8_t patch, std::uint8_t local = 0
     )
     {
-    return ((uint32_t)major << 24u) | ((uint32_t)minor << 16u) | ((uint32_t)patch << 8u) | (uint32_t)local;
+    return ((std::uint32_t)major << 24u) | ((std::uint32_t)minor << 16u) | ((std::uint32_t)patch << 8u) | (std::uint32_t)local;
     }
 
 // extract major number from version
-static constexpr uint8_t
-getMajor(uint32_t v)
+static constexpr std::uint8_t
+getMajor(std::uint32_t v)
     {
-    return uint8_t(v >> 24u);
+    return std::uint8_t(v >> 24u);
     }
 
 // extract minor number from version
-static constexpr uint8_t 
-getMinor(uint32_t v)
+static constexpr std::uint8_t 
+getMinor(std::uint32_t v)
     {
-    return uint8_t(v >> 16u);
+    return std::uint8_t(v >> 16u);
     }
 
 // extract patch number from version
-static constexpr uint8_t 
-getPatch(uint32_t v)
+static constexpr std::uint8_t 
+getPatch(std::uint32_t v)
     {
-    return uint8_t(v >> 8u);
+    return std::uint8_t(v >> 8u);
     }
 
 // extract local number from version
-static constexpr uint8_t 
-getLocal(uint32_t v)
+static constexpr std::uint8_t 
+getLocal(std::uint32_t v)
     {
-    return uint8_t(v);
+    return std::uint8_t(v);
     }
 
 // version of library, for use by clients in static_asserts
-static constexpr uint32_t kVersion = makeVersion(0,1,0,0);
+static constexpr std::uint32_t kVersion = makeVersion(0,1,0,0);
 
 class cSHT_3x 
     {
@@ -383,7 +383,7 @@ public:
     // return the highest periodicity value such that
     //  1. PeriodicityToMillis(millisToPeriodicity(ms)) != 0
     //  2. PeriodicityToMillis(millisToPeriodicity(ms)) <= ms
-    static constexpr Periodicity millisToPeriodicity(uint32_t ms)
+    static constexpr Periodicity millisToPeriodicity(std::uint32_t ms)
         {
         if (ms < 250)
             return Periodicity::HzTen;
@@ -399,7 +399,7 @@ public:
 
     // return the ms/sample corresponding to p, or zero if not
     // a periodic value.
-    static constexpr uint32_t PeriodicityToMillis(Periodicity p)
+    static constexpr std::uint32_t PeriodicityToMillis(Periodicity p)
         {
         switch (p)
             {
@@ -422,7 +422,7 @@ public:
     // status bits
     class Status_t {
     public:
-        Status_t(uint32_t status = 1 << 16) 
+        Status_t(std::uint32_t status = 1 << 16) 
             : m_Status (status) 
             {};
 
@@ -439,10 +439,10 @@ public:
         bool isCommandFailure() const { return this->m_Status & (1 << 1); }
         bool isCommandBadCS() const { return this->m_Status & (1 << 0); }
         bool isValid() const { return (this->m_Status & (1 << 16)) == 0; }
-        uint16_t getBits() const { return this->m_Status & 0xFFFF; }
+        std::uint16_t getBits() const { return this->m_Status & 0xFFFF; }
 
     private:
-        uint32_t m_Status;
+        std::uint32_t m_Status;
         };
 
     // the begin and end methods.
@@ -452,13 +452,15 @@ public:
 
     Status_t getStatus(void) const;
 
+    bool getTemperatureHumidityRaw(std::uint16_t &t, std::uint16_t &rh, Repeatability r = Repeatability::High) const;
     bool getTemperatureHumidity(float &T, float &rh, Repeatability r = Repeatability::High) const;
     bool reset(void) const;
 
     // start a measurement, and return the millis to delay between
     // measurements
-    uint32_t startPeriodicMeasurement(Command c) const;
+    std::uint32_t startPeriodicMeasurement(Command c) const;
     bool getPeriodicMeasurement(float &T, float &rh) const;
+    bool getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhfrac) const;
 
     bool setCrcMode(bool newMode)
         {
@@ -479,13 +481,44 @@ public:
 
     bool getHeater(void) const;
 
+    static constexpr float rawTtoCelsius(std::uint16_t tfrac)
+        {
+        return -45.0f + 175.0f * (tfrac / 65535.0f);
+        }
+
+    static constexpr float rawRHtoPercent(std::uint16_t rhfrac)
+        {
+        return 100.0f * (rhfrac / 65535.0f);
+        }
+
+    static constexpr std::uint16_t celsiusToRawT(float t)
+        {
+        t += 45.0f;
+        if (t < 0.0f)
+            return 0;
+        else if (t > 175.0)
+            return 0xFFFFu;
+        else
+            return (std::uint16_t) ((t / 175.0f) * 65535.0f);
+        }
+
+    static constexpr std::uint16_t percentRHtoRaw(float rh)
+        {
+        if (rh > 100.0)
+            return 0xFFFFu;
+        else if (rh < 0.0)
+            return 0;
+        else
+            return (std::uint16_t) (65535.0f * (rh / 100.0));
+        }
+
 protected:
     bool writeCommand(Command c) const;
-    bool readResponse(uint8_t *buf, size_t nBuf) const;
-    bool processResults(const uint8_t (&buf)[6], float &t, float &rh) const;
-    static uint8_t crc(const uint8_t *buf, size_t nBuf, uint8_t crc8 = 0xFF);
-    int8_t getAddress() const
-        { return static_cast<int8_t>(this->m_address); }
+    bool readResponse(std::uint8_t *buf, size_t nBuf) const;
+    bool processResultsRaw(const std::uint8_t (&buf)[6], std::uint16_t &t, std::uint16_t &rh) const;
+    static std::uint8_t crc(const std::uint8_t *buf, size_t nBuf, std::uint8_t crc8 = 0xFF);
+    std::uint8_t getAddress() const
+        { return static_cast<std::uint8_t>(this->m_address); }
 
 private:
     TwoWire *m_wire;

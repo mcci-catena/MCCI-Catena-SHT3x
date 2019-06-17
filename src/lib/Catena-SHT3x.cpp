@@ -43,7 +43,7 @@ bool cSHT_3x::reset(void) const
 cSHT_3x::Status_t cSHT_3x::getStatus() const
     {
     bool ok;
-    uint8_t buf[3];
+    std::uint8_t buf[3];
 
     ok = this->writeCommand(Command::GetStatus);
 
@@ -84,6 +84,30 @@ bool cSHT_3x::getTemperatureHumidity(
     ) const
     {
     bool fResult;
+    std::uint16_t tfrac, rhfrac;
+
+    fResult = this->getTemperatureHumidityRaw(tfrac, rhfrac, r);
+
+    if (fResult)
+        {
+        t = this->rawTtoCelsius(tfrac);
+        rh = this->rawRHtoPercent(rhfrac);
+        }
+    else
+        {
+        t = rh = NAN;
+        }
+
+    return fResult;
+    }
+
+bool cSHT_3x::getTemperatureHumidityRaw(
+    std::uint16_t &t,
+    std::uint16_t &rh,
+    cSHT_3x::Repeatability r
+    ) const
+    {
+    bool fResult;
     Command const c = this->getCommand(
                             Periodicity::Single,
                             r,
@@ -95,7 +119,7 @@ bool cSHT_3x::getTemperatureHumidity(
     if (c == Command::Error)
         fResult = false;
 
-    uint8_t buf[6];
+    std::uint8_t buf[6];
 
     if (fResult)
         fResult = this->writeCommand(c);
@@ -107,18 +131,14 @@ bool cSHT_3x::getTemperatureHumidity(
         }
 
     if (fResult)
-        fResult = this->processResults(buf, t, rh);
+        fResult = this->processResultsRaw(buf, t, rh);
 
-    if (! fResult)
-        {
-        t = rh = NAN;
-        }
     return fResult;
     }
 
-uint32_t cSHT_3x::startPeriodicMeasurement(Command c) const
+std::uint32_t cSHT_3x::startPeriodicMeasurement(Command c) const
     {
-    uint32_t result = this->PeriodicityToMillis(this->getPeriodicity(c));
+    std::uint32_t result = this->PeriodicityToMillis(this->getPeriodicity(c));
 
     if (result == 0)
         return result;
@@ -140,21 +160,42 @@ uint32_t cSHT_3x::startPeriodicMeasurement(Command c) const
 bool cSHT_3x::getPeriodicMeasurement(float &t, float &rh) const
     {
     bool fResult;
-    uint8_t buf[6];
+    std::uint16_t tfrac, rhfrac;
+
+    fResult = this->getPeriodicMeasurementRaw(tfrac, rhfrac);
+    if (! fResult)
+        return false;
+    
+    if (fResult)
+        {
+        t = this->rawTtoCelsius(tfrac);
+        rh = this->rawRHtoPercent(rhfrac);
+        }
+
+    return fResult;
+    }
+
+bool cSHT_3x::getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhfrac) const
+    {
+    bool fResult;
+    std::uint8_t buf[6];
 
     fResult = this->writeCommand(Command::Fetch);
     if (fResult)
         fResult = this->readResponse(buf, sizeof(buf));
     if (fResult)
-        fResult = this->processResults(buf, t, rh);
+        fResult = this->processResultsRaw(buf, tfrac, rhfrac);
     return fResult;
     }
 
-bool cSHT_3x::processResults(
-    const uint8_t (&buf)[6], float &t, float &rh
+bool cSHT_3x::processResultsRaw(
+    const std::uint8_t (&buf)[6], std::uint16_t &tfrac, std::uint16_t &rhfrac
     ) const
     {
-    // check CRC? check a flag.
+    tfrac = (buf[0] << 8) | buf[1];
+    rhfrac = (buf[3] << 8) | buf[4];
+
+    // check CRC? use a flag to control
     if (! this->m_noCrc)
         {
         if (this->crc(buf, 2) != buf[2] ||
@@ -162,44 +203,36 @@ bool cSHT_3x::processResults(
                 return false;
         }
 
-    uint16_t tfrac = (buf[0] << 8) | buf[1];
-    uint16_t rhfrac = (buf[3] << 8) | buf[4];
-
-    // note that the datasheet says that T can range up to
-    // 130 degrees (exactly), and RH can range up to 100.0
-    // (exactly).  Consider this wehn scaling.
-    t = -45.0f + 175.0f * tfrac / 65535.0f;
-    rh = 100.0f * rhfrac / 65535.0f;
     return true;
     }
 
 bool cSHT_3x::writeCommand(Command c) const
     {
-    uint16_t const cbits = static_cast<uint16_t>(c);
-    uint8_t result;
-    const int8_t addr = this->getAddress();
+    std::uint16_t const cbits = static_cast<std::uint16_t>(c);
+    std::uint8_t result;
+    const std::int8_t addr = this->getAddress();
 
     if (addr < 0)
         return false;
 
     this->m_wire->beginTransmission(addr);
-    this->m_wire->write(uint8_t(cbits >> 8));
-    this->m_wire->write(uint8_t(cbits & 0xFF));
+    this->m_wire->write(std::uint8_t(cbits >> 8));
+    this->m_wire->write(std::uint8_t(cbits & 0xFF));
     result = this->m_wire->endTransmission();
 
     return result == 0;
     }
 
-bool cSHT_3x::readResponse(uint8_t *buf, size_t nBuf) const
+bool cSHT_3x::readResponse(std::uint8_t *buf, size_t nBuf) const
     {
     bool ok;
     unsigned nResult;
-    const int8_t addr = this->getAddress();
+    const std::int8_t addr = this->getAddress();
 
     if (buf == nullptr || nBuf > 32 || addr < 0)
         return false;
 
-    this->m_wire->requestFrom(uint8_t(addr), /* bytes */ uint8_t(nBuf));
+    this->m_wire->requestFrom(std::uint8_t(addr), /* bytes */ std::uint8_t(nBuf));
 
     nResult = this->m_wire->available();
 
@@ -209,9 +242,9 @@ bool cSHT_3x::readResponse(uint8_t *buf, size_t nBuf) const
     return (nResult != nBuf);
     }
 
-uint8_t cSHT_3x::crc(const uint8_t * buf, size_t nBuf, uint8_t crc8)
+std::uint8_t cSHT_3x::crc(const std::uint8_t * buf, size_t nBuf, std::uint8_t crc8)
     {
-    static uint8_t crcTable[256] =
+    static std::uint8_t crcTable[256] =
         {
         0x0, 0x31, 0x62, 0x53, 0xc4, 0xf5, 0xa6, 0x97, 
         0xb9, 0x88, 0xdb, 0xea, 0x7d, 0x4c, 0x1f, 0x2e, 
