@@ -22,6 +22,7 @@ A number of utility methods allow the client to manage the sensor.
 - The sensor includes a heater that's intended for diagnostic purposes. (Turn on the heater, and make sure the temperature changes.) `cSHT_3x::getHeater()` queries the current state of the heater, and `cSHT_3x::setHeater(bool fOn)` turns it on or off.
 - `cSHT_3x::getStatus()` reads the current value of the status register. The value is returned as an opaque structure of type `cSHT_3x::Status_t`. Methods are provided to allow clients to query individual bits. A status also has an explicit `invalid` state, which can be separately queried.
 - For convenience, static methods are provided to convert between raw (`uint16_t`) data and engineering units. `cSHT_3x::rawToCelsius()` and `cSHT_3x::rawRHtoPercent()` convert raw data to engineering units. `cSHT_3x::celsiusToRawT()` and `cSHT_3x::percentRHtoRaw()` convert engineering units to raw data. (This may be useful for precalculating alarms, to save on floating point calculations at run time.)
+- `cSHT_3x::isDebug()` returns `true` if this is a debug build, `false` otherwise. It's a `constexpr`, so using this in an `if()` statement is equivalent to a `#if` -- the compiler will optimize away the code if this is not a debug build.
 
 ## Header File
 

@@ -448,10 +448,11 @@ public:
         std::uint32_t m_Status;
         };
 
-    // the begin and end methods.
+    // start operation.
     bool begin();
 
-    bool end();
+    // end operation.
+    void end();
 
     Status_t getStatus(void) const;
 

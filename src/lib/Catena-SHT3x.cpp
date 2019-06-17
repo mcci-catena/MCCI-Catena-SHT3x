@@ -24,7 +24,7 @@ bool cSHT_3x::begin(void)
     return this->reset();
     }
 
-bool cSHT_3x::end(void)
+void cSHT_3x::end(void)
     {
     this->reset();
     }
