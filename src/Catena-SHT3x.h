@@ -65,13 +65,16 @@ static constexpr std::uint32_t kVersion = makeVersion(0,1,0,0);
 
 class cSHT_3x 
     {
+private:
+    static constexpr bool kfDebug = false;
+
 public:
     // the address type:
     enum class Address_t : std::int8_t
         {
         Error = -1,
-        A = 0x45,
-        B = 0x46,
+        A = 0x44,
+        B = 0x45,
         };
 
     using Pin_t = std::int8_t;
