@@ -520,8 +520,8 @@ protected:
     bool readResponse(std::uint8_t *buf, size_t nBuf) const;
     bool processResultsRaw(const std::uint8_t (&buf)[6], std::uint16_t &t, std::uint16_t &rh) const;
     static std::uint8_t crc(const std::uint8_t *buf, size_t nBuf, std::uint8_t crc8 = 0xFF);
-    std::uint8_t getAddress() const
-        { return static_cast<std::uint8_t>(this->m_address); }
+    std::int8_t getAddress() const
+        { return static_cast<std::int8_t>(this->m_address); }
 
 private:
     TwoWire *m_wire;
