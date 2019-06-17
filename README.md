@@ -102,7 +102,7 @@ McciCatenaSht3x::cSHT_3x::getRepeatability(Command);
 static constexpr McciCatenaSht3x::Periodicity
 McciCatenaSht3x::cSHT_3x::millisToPeriodicity(uint32_t millis);
 
-static constexpr 
+static constexpr
 ```
 
 ### The command constants

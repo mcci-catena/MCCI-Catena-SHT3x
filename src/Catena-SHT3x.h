@@ -24,7 +24,7 @@ namespace McciCatenaSht3x {
 
 
 // create a version number for comparison
-static constexpr std::uint32_t 
+static constexpr std::uint32_t
 makeVersion(
     std::uint8_t major, std::uint8_t minor, std::uint8_t patch, std::uint8_t local = 0
     )
@@ -40,21 +40,21 @@ getMajor(std::uint32_t v)
     }
 
 // extract minor number from version
-static constexpr std::uint8_t 
+static constexpr std::uint8_t
 getMinor(std::uint32_t v)
     {
     return std::uint8_t(v >> 16u);
     }
 
 // extract patch number from version
-static constexpr std::uint8_t 
+static constexpr std::uint8_t
 getPatch(std::uint32_t v)
     {
     return std::uint8_t(v >> 8u);
     }
 
 // extract local number from version
-static constexpr std::uint8_t 
+static constexpr std::uint8_t
 getLocal(std::uint32_t v)
     {
     return std::uint8_t(v);
@@ -63,7 +63,7 @@ getLocal(std::uint32_t v)
 // version of library, for use by clients in static_asserts
 static constexpr std::uint32_t kVersion = makeVersion(0,1,0,0);
 
-class cSHT_3x 
+class cSHT_3x
     {
 private:
     static constexpr bool kfDebug = false;
@@ -78,12 +78,12 @@ public:
         };
 
     using Pin_t = std::int8_t;
- 
+
     // constructor:
     cSHT_3x(TwoWire &wire, Address_t Address = Address_t::A,
             Pin_t pinAlert = -1,
-            Pin_t pinReset = -1) 
-            : m_wire(&wire), 
+            Pin_t pinReset = -1)
+            : m_wire(&wire),
               m_address(Address),
               m_pinAlert(pinAlert),
               m_pinReset(pinReset) {}
@@ -95,7 +95,7 @@ public:
     cSHT_3x& operator=(const cSHT_3x&&) = delete;
 
     // the commands -- not a class.
-    enum class Command : std::uint16_t 
+    enum class Command : std::uint16_t
         {
         // sorted in ascending numerical order.
         Error                       = 0,
@@ -425,8 +425,8 @@ public:
     // status bits
     class Status_t {
     public:
-        Status_t(std::uint32_t status = 1 << 16) 
-            : m_Status (status) 
+        Status_t(std::uint32_t status = 1 << 16)
+            : m_Status (status)
             {};
 
         // copy constructor
@@ -477,9 +477,9 @@ public:
     bool setHeater(bool fOn) const
             {
             return this->writeCommand(
-                    fOn ? Command::HeaterEnable 
+                    fOn ? Command::HeaterEnable
                         : Command::HeaterDisable
-                    ); 
+                    );
             }
 
     bool getHeater(void) const;
