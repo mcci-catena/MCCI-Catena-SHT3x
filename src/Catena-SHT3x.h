@@ -383,7 +383,7 @@ public:
     // return the highest periodicity value such that
     //  1. PeriodicityToMillis(millisToPeriodicity(ms)) != 0
     //  2. PeriodicityToMillis(millisToPeriodicity(ms)) <= ms
-    static constexpr Periodicity millisToPeriodicity(unsigned ms)
+    static constexpr Periodicity millisToPeriodicity(uint32_t ms)
         {
         if (ms < 250)
             return Periodicity::HzTen;
@@ -399,7 +399,7 @@ public:
 
     // return the ms/sample corresponding to p, or zero if not
     // a periodic value.
-    static constexpr unsigned PeriodicityToMillis(Periodicity p)
+    static constexpr uint32_t PeriodicityToMillis(Periodicity p)
         {
         switch (p)
             {
