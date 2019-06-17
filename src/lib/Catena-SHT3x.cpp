@@ -117,21 +117,44 @@ bool cSHT_3x::getTemperatureHumidityRaw(
     fResult = true;
 
     if (c == Command::Error)
+        {
+        if (this->isDebug())
+            {
+            Serial.print("getTemperatureHumidityRaw: Illegal repeatability: ");
+            Serial.println(static_cast<int>(r));
+            }
         fResult = false;
+        }
 
     std::uint8_t buf[6];
 
     if (fResult)
+        {
         fResult = this->writeCommand(c);
+        if (this->isDebug() && ! fResult)
+            {
+            Serial.println("getTemperatureHumidityRaw: writeCommand failed");
+            }
+        }
 
     if (fResult)
         {
         delay(20);
         fResult = this->readResponse(buf, sizeof(buf));
+        if (this->isDebug() && ! fResult)
+            {
+            Serial.println("getTemperatureHumidityRaw: readResponse failed");
+            }
         }
 
     if (fResult)
+        {
         fResult = this->processResultsRaw(buf, t, rh);
+        if (this->isDebug() && ! fResult)
+            {
+            Serial.println("getTemperatureHumidityRaw: processResultsRaw failed");
+            }
+        }
 
     return fResult;
     }
@@ -213,14 +236,31 @@ bool cSHT_3x::writeCommand(Command c) const
     const std::int8_t addr = this->getAddress();
 
     if (addr < 0)
+        {
+        if (this->isDebug())
+            Serial.println("writeCommand: bad address");
+
         return false;
+        }
 
     this->m_wire->beginTransmission(addr);
     this->m_wire->write(std::uint8_t(cbits >> 8));
     this->m_wire->write(std::uint8_t(cbits & 0xFF));
     result = this->m_wire->endTransmission();
 
-    return result == 0;
+    if (result != 0)
+        {
+        if (this->isDebug())
+            {
+            Serial.print("writeCommand: error writing command 0x");
+            Serial.print(cbits, HEX);
+            Serial.print(", result: ");
+            Serial.println(result);
+            }
+        return false;
+        }
+    else
+        return true;
     }
 
 bool cSHT_3x::readResponse(std::uint8_t *buf, size_t nBuf) const
@@ -228,18 +268,44 @@ bool cSHT_3x::readResponse(std::uint8_t *buf, size_t nBuf) const
     bool ok;
     unsigned nResult;
     const std::int8_t addr = this->getAddress();
+    uint8_t nReadFrom;
 
     if (buf == nullptr || nBuf > 32 || addr < 0)
+        {
+        if (this->isDebug())
+            Serial.println("readResponse: invalid parameter");
+
         return false;
+        }
 
-    this->m_wire->requestFrom(std::uint8_t(addr), /* bytes */ std::uint8_t(nBuf));
+    nReadFrom = this->m_wire->requestFrom(std::uint8_t(addr), /* bytes */ std::uint8_t(nBuf));
 
+    if (nReadFrom != nBuf)
+        {
+        if (this->isDebug())
+            {
+            Serial.print("readResponse: nReadFrom(");
+            Serial.print(unsigned(nReadFrom));
+            Serial.print(") != nBuf(");
+            Serial.print(nBuf);
+            Serial.println(")");
+            }
+        }
     nResult = this->m_wire->available();
 
     for (unsigned i = 0; i < nResult; ++i)
         buf[i] = this->m_wire->read();
 
-    return (nResult != nBuf);
+    if (nResult != nBuf && this->isDebug())
+        {
+        Serial.print("readResponse: nResult(");
+        Serial.print(nResult);
+        Serial.print(") != nBuf(");
+        Serial.print(nBuf);
+        Serial.println(")");
+        }
+
+    return (nResult == nBuf);
     }
 
 std::uint8_t cSHT_3x::crc(const std::uint8_t * buf, size_t nBuf, std::uint8_t crc8)

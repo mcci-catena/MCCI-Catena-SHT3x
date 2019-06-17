@@ -515,6 +515,8 @@ public:
             return (std::uint16_t) (65535.0f * (rh / 100.0));
         }
 
+    static constexpr bool isDebug() { return kfDebug; }
+
 protected:
     bool writeCommand(Command c) const;
     bool readResponse(std::uint8_t *buf, size_t nBuf) const;
