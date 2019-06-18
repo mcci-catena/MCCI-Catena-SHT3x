@@ -1,7 +1,19 @@
 # MCCI Catena&reg; SHT-3x Sensor Library
 
-This library provides a simple interface to Sensirion SHT-31, SHT-32, and SHT-35 sensors.
+This library provides a simple interface to Sensirion SHT-31, SHT-32, and SHT-35 sensors. Although we tested this on the MCCI Catena 4618, there are no dependencies on MCCI hardware; this should work equally well with Adafruit breakout boards, etc.
 
+<!-- TOC depthFrom:2 updateOnSave:true -->
+
+- [Introduction](#introduction)
+- [Header File](#header-file)
+- [Library Dependencies](#library-dependencies)
+- [Example Scripts](#example-scripts)
+- [Namespace](#namespace)
+- [Instance Object](#instance-object)
+- [Converting between modes and command words](#converting-between-modes-and-command-words)
+	- [The command constants](#the-command-constants)
+
+<!-- /TOC -->
 ## Introduction
 
 Clients interact with Sensirion sensors via the following sequence.
@@ -29,6 +41,16 @@ A number of utility methods allow the client to manage the sensor.
 ```c++
 #include <Catena-SHT3x.h>
 ```
+
+## Library Dependencies
+
+None, beyond the normal Arduino library `<Wire.h>`.  It can be used with [Catena-Arduino-Platform](https://github.com/mcci-catena/Catena-Arduino-Platform), but it doesn't require it.
+
+## Example Scripts
+
+See [sht3x-simple](./examples/sht3x-simple/sht3x-simple.ino). Sht3x-simple reads and displays the temperature and humidity once a second, using the simple APIs.
+
+![Screenshot of sht3x-simple.ino in operation](./assets/sht3x-simple-screenshot.png)
 
 ## Namespace
 
@@ -73,7 +95,7 @@ cSHT_3x mySHT_3x(
     );
 ```
 
-## Setting the mode
+## Converting between modes and command words
 
 The SHT-3x datasheet doesn't give the algorighm (if any) for computing the internal checksums for commands, nor the internal bit structure of the commands. Despite the obvious regularity, we decided to resort to some hairy `constexpr` functions to allow us to build and decode commmands cleanly.
 
