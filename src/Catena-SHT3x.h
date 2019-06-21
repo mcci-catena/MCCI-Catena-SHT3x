@@ -66,7 +66,7 @@ static constexpr std::uint32_t kVersion = makeVersion(0,1,0,0);
 class cSHT_3x
     {
 private:
-    static constexpr bool kfDebug = false;
+    static constexpr bool kfDebug = true;
 
 public:
     // the address type:
@@ -93,6 +93,68 @@ public:
     cSHT_3x& operator=(const cSHT_3x&) = delete;
     cSHT_3x(const cSHT_3x&&) = delete;
     cSHT_3x& operator=(const cSHT_3x&&) = delete;
+
+    static constexpr float rawTtoCelsius(std::uint16_t tfrac)
+        {
+        return -45.0f + 175.0f * (tfrac / 65535.0f);
+        }
+
+    static constexpr float rawRHtoPercent(std::uint16_t rhfrac)
+        {
+        return 100.0f * (rhfrac / 65535.0f);
+        }
+
+    static constexpr std::uint16_t celsiusToRawT(float t)
+        {
+        t += 45.0f;
+        if (t < 0.0f)
+            return 0;
+        else if (t > 175.0)
+            return 0xFFFFu;
+        else
+            return (std::uint16_t) ((t / 175.0f) * 65535.0f);
+        }
+
+    static constexpr std::uint16_t percentRHtoRaw(float rh)
+        {
+        if (rh > 100.0)
+            return 0xFFFFu;
+        else if (rh < 0.0)
+            return 0;
+        else
+            return (std::uint16_t) (65535.0f * (rh / 100.0));
+        }
+
+
+    // raw measurements as a collection.
+    struct MeasurementsRaw
+        {
+        std::uint16_t   TemperatureBits;
+        std::uint16_t   HumidityBits;
+        void extract(std::uint16_t &a_t, std::uint16_t &a_rh) const
+            {
+            a_t = this->TemperatureBits;
+            a_rh = this->HumidityBits;
+            }
+        };
+
+    // measurements, as a collection.
+    struct Measurements
+        {
+        float Temperature;
+        float Humidity;
+        void set(const MeasurementsRaw &mRaw)
+            {
+            this->Temperature = rawTtoCelsius(mRaw.TemperatureBits);
+            this->Humidity = rawRHtoPercent(mRaw.HumidityBits);
+            }
+        void extract(float &a_t, float &a_rh) const
+            {
+            a_t = this->Temperature;
+            a_rh = this->Humidity;
+            }
+        };
+
 
     // the commands -- not a class.
     enum class Command : std::uint16_t
@@ -457,14 +519,18 @@ public:
     Status_t getStatus(void) const;
 
     bool getTemperatureHumidityRaw(std::uint16_t &t, std::uint16_t &rh, Repeatability r = Repeatability::High) const;
+    bool getTemperatureHumidityRaw(MeasurementsRaw &mRaw, Repeatability r = Repeatability::High) const;
     bool getTemperatureHumidity(float &T, float &rh, Repeatability r = Repeatability::High) const;
+    bool getTemperatureHumidity(Measurements &m, Repeatability r = Repeatability::High) const;
     bool reset(void) const;
 
     // start a measurement, and return the millis to delay between
     // measurements
     std::uint32_t startPeriodicMeasurement(Command c) const;
     bool getPeriodicMeasurement(float &T, float &rh) const;
+    bool getPeriodicMeasurement(Measurements &m) const;
     bool getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhfrac) const;
+    bool getPeriodicMeasurementRaw(MeasurementsRaw &mRaw) const;
 
     bool setCrcMode(bool newMode)
         {
@@ -485,43 +551,13 @@ public:
 
     bool getHeater(void) const;
 
-    static constexpr float rawTtoCelsius(std::uint16_t tfrac)
-        {
-        return -45.0f + 175.0f * (tfrac / 65535.0f);
-        }
-
-    static constexpr float rawRHtoPercent(std::uint16_t rhfrac)
-        {
-        return 100.0f * (rhfrac / 65535.0f);
-        }
-
-    static constexpr std::uint16_t celsiusToRawT(float t)
-        {
-        t += 45.0f;
-        if (t < 0.0f)
-            return 0;
-        else if (t > 175.0)
-            return 0xFFFFu;
-        else
-            return (std::uint16_t) ((t / 175.0f) * 65535.0f);
-        }
-
-    static constexpr std::uint16_t percentRHtoRaw(float rh)
-        {
-        if (rh > 100.0)
-            return 0xFFFFu;
-        else if (rh < 0.0)
-            return 0;
-        else
-            return (std::uint16_t) (65535.0f * (rh / 100.0));
-        }
-
     static constexpr bool isDebug() { return kfDebug; }
 
 protected:
     bool writeCommand(Command c) const;
     bool readResponse(std::uint8_t *buf, size_t nBuf) const;
     bool processResultsRaw(const std::uint8_t (&buf)[6], std::uint16_t &t, std::uint16_t &rh) const;
+    bool processResultsRaw(const std::uint8_t (&buf)[6], MeasurementsRaw &mRaw) const;
     static std::uint8_t crc(const std::uint8_t *buf, size_t nBuf, std::uint8_t crc8 = 0xFF);
     std::int8_t getAddress() const
         { return static_cast<std::int8_t>(this->m_address); }

@@ -67,18 +67,18 @@ void setup()
 
 void loop()
     {
-    float t, rh;
+    cSHT_3x::Measurements m;
 
-    if (! gSht3x.getTemperatureHumidity(t, rh))
+    if (! gSht3x.getTemperatureHumidity(m))
         {
         Serial.println("can't read T/RH");
         }
     else
         {
         Serial.print("T(F)=");
-        Serial.print(t * 1.8 + 32);
+        Serial.print(m.Temperature * 1.8 + 32);
         Serial.print("  RH=");
-        Serial.print(rh);
+        Serial.print(m.Humidity);
         Serial.println("%");
         }
 

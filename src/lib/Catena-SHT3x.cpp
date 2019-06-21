@@ -84,18 +84,30 @@ bool cSHT_3x::getTemperatureHumidity(
     ) const
     {
     bool fResult;
-    std::uint16_t tfrac, rhfrac;
+    Measurements m;
 
-    fResult = this->getTemperatureHumidityRaw(tfrac, rhfrac, r);
+    fResult = this->getTemperatureHumidity(m, r);
+    m.extract(t, rh);
+    return fResult;
+    }
+
+bool cSHT_3x::getTemperatureHumidity(
+    cSHT_3x::Measurements &m,
+    cSHT_3x::Repeatability r
+    ) const
+    {
+    bool fResult;
+    MeasurementsRaw mRaw;
+
+    fResult = this->getTemperatureHumidityRaw(mRaw, r);
 
     if (fResult)
         {
-        t = this->rawTtoCelsius(tfrac);
-        rh = this->rawRHtoPercent(rhfrac);
+        m.set(mRaw);
         }
     else
         {
-        t = rh = NAN;
+        m.Temperature = m.Humidity = NAN;
         }
 
     return fResult;
@@ -104,6 +116,21 @@ bool cSHT_3x::getTemperatureHumidity(
 bool cSHT_3x::getTemperatureHumidityRaw(
     std::uint16_t &t,
     std::uint16_t &rh,
+    cSHT_3x::Repeatability r
+    ) const
+    {
+    bool fResult;
+    MeasurementsRaw mRaw;
+
+    fResult = this->getTemperatureHumidityRaw(mRaw, r);
+    if (fResult)
+        mRaw.extract(t, rh);
+
+    return fResult;
+    }
+
+bool cSHT_3x::getTemperatureHumidityRaw(
+    cSHT_3x::MeasurementsRaw &mRaw,
     cSHT_3x::Repeatability r
     ) const
     {
@@ -149,7 +176,7 @@ bool cSHT_3x::getTemperatureHumidityRaw(
 
     if (fResult)
         {
-        fResult = this->processResultsRaw(buf, t, rh);
+        fResult = this->processResultsRaw(buf, mRaw);
         if (this->isDebug() && ! fResult)
             {
             Serial.println("getTemperatureHumidityRaw: processResultsRaw failed");
@@ -183,16 +210,28 @@ std::uint32_t cSHT_3x::startPeriodicMeasurement(Command c) const
 bool cSHT_3x::getPeriodicMeasurement(float &t, float &rh) const
     {
     bool fResult;
-    std::uint16_t tfrac, rhfrac;
+    Measurements m;
 
-    fResult = this->getPeriodicMeasurementRaw(tfrac, rhfrac);
-    if (! fResult)
-        return false;
-
+    fResult = this->getPeriodicMeasurement(m);
     if (fResult)
         {
-        t = this->rawTtoCelsius(tfrac);
-        rh = this->rawRHtoPercent(rhfrac);
+        m.extract(t, rh);
+        }
+
+    return fResult;
+    }
+
+bool cSHT_3x::getPeriodicMeasurement(
+    cSHT_3x::Measurements &m
+    ) const
+    {
+    MeasurementsRaw mRaw;
+    bool fResult;
+
+    fResult = this->getPeriodicMeasurementRaw(mRaw);
+    if (fResult)
+        {
+        m.set(mRaw);
         }
 
     return fResult;
@@ -201,22 +240,50 @@ bool cSHT_3x::getPeriodicMeasurement(float &t, float &rh) const
 bool cSHT_3x::getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhfrac) const
     {
     bool fResult;
+    MeasurementsRaw mRaw;
+
+    fResult = this->getPeriodicMeasurementRaw(mRaw);
+    if (fResult)
+        {
+        mRaw.extract(tfrac, rhfrac);
+        }
+
+    return fResult;
+    }
+
+bool cSHT_3x::getPeriodicMeasurementRaw(cSHT_3x::MeasurementsRaw &mRaw) const
+    {
+    bool fResult;
     std::uint8_t buf[6];
 
     fResult = this->writeCommand(Command::Fetch);
     if (fResult)
         fResult = this->readResponse(buf, sizeof(buf));
     if (fResult)
-        fResult = this->processResultsRaw(buf, tfrac, rhfrac);
+        fResult = this->processResultsRaw(buf, mRaw);
+
     return fResult;
     }
+
 
 bool cSHT_3x::processResultsRaw(
     const std::uint8_t (&buf)[6], std::uint16_t &tfrac, std::uint16_t &rhfrac
     ) const
     {
-    tfrac = (buf[0] << 8) | buf[1];
-    rhfrac = (buf[3] << 8) | buf[4];
+    MeasurementsRaw mRaw;
+    bool fResult;
+
+    fResult = this->processResultsRaw(buf, mRaw);
+    mRaw.extract(tfrac, rhfrac);
+    }
+
+bool cSHT_3x::processResultsRaw(
+    const std::uint8_t (&buf)[6],
+    cSHT_3x::MeasurementsRaw &mRaw
+    ) const
+    {
+    mRaw.TemperatureBits = (buf[0] << 8) | buf[1];
+    mRaw.HumidityBits = (buf[3] << 8) | buf[4];
 
     // check CRC? use a flag to control
     if (! this->m_noCrc)

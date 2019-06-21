@@ -26,6 +26,12 @@ Clients interact with Sensirion sensors via the following sequence.
 
    To collect results, the client occasionaly calls `cSHT_3x::getPeriodicMeasurement()` or `cSHT_3x::getPeriodicMeasurementRaw()`. If a measurement is available, it will be returned, and the method returns `true`; otherwise, the method returns `false`.  To save power, the client should delay the appropriate number of milliseconds between calls (as indicated by the result of `cSHT_3x::startPeriodicMeasurement()`).
 
+Measurements are returned in structures (`cSHT_3x::Measurements` or `cSHT_3x::MeasurementsRaw`, respectively.) These structures have some utility methods:
+
+- `cSHT_3x::Measurments::set(const cSHT_3x::MeasurementsRaw &mRaw)` sets the target `Measurement` to the engineering-units equivalent of `mRaw`.
+- `cSHT_3x::Measurments::extract(float &t, float &rh) const` sets `t` to the temperature (in Celsius), and `rh` to the relative humidity (in percent).
+- `cSHT_3x::MeasurmentsRaw::extract(std::uint16_t &t, std::uint16_t &rh) const` sets `t` and `rh` to the raw measurement from the device.
+
 A number of utility methods allow the client to manage the sensor.
 
 - `cSHT_3x::reset()` issues a soft reset to the device.
