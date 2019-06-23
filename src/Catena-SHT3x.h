@@ -3,7 +3,7 @@
 Module: Catena-SHT3x.h
 
 Function:
-        Definitions for the Catena library for the Sensirion SHT-3x sensor family.
+        Definitions for the Catena library for the Sensirion SHT3x sensor family.
 
 Copyright and License:
         See accompanying LICENSE file.
@@ -63,7 +63,7 @@ getLocal(std::uint32_t v)
 // version of library, for use by clients in static_asserts
 static constexpr std::uint32_t kVersion = makeVersion(0,1,0,0);
 
-class cSHT_3x
+class cSHT3x
     {
 private:
     static constexpr bool kfDebug = true;
@@ -80,7 +80,7 @@ public:
     using Pin_t = std::int8_t;
 
     // constructor:
-    cSHT_3x(TwoWire &wire, Address_t Address = Address_t::A,
+    cSHT3x(TwoWire &wire, Address_t Address = Address_t::A,
             Pin_t pinAlert = -1,
             Pin_t pinReset = -1)
             : m_wire(&wire),
@@ -89,10 +89,10 @@ public:
               m_pinReset(pinReset) {}
 
     // neither copyable nor movable
-    cSHT_3x(const cSHT_3x&) = delete;
-    cSHT_3x& operator=(const cSHT_3x&) = delete;
-    cSHT_3x(const cSHT_3x&&) = delete;
-    cSHT_3x& operator=(const cSHT_3x&&) = delete;
+    cSHT3x(const cSHT3x&) = delete;
+    cSHT3x& operator=(const cSHT3x&) = delete;
+    cSHT3x(const cSHT3x&&) = delete;
+    cSHT3x& operator=(const cSHT3x&&) = delete;
 
     static constexpr float rawTtoCelsius(std::uint16_t tfrac)
         {

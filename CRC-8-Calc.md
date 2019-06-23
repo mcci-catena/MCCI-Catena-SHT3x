@@ -1,6 +1,6 @@
 # CRC-8 Analysis
 
-The SHT-3x family uses a special CRC-8 polynomial to generate check codes for the input data, documented in the data sheet. Unlike many CRC algorithms performed in hardware, it simply transmits the CRC value after the checked range (rather than sending a bit-reversed complement so that the residue always ends up at a known value).
+The SHT3x family uses a special CRC-8 polynomial to generate check codes for the input data, documented in the data sheet. Unlike many CRC algorithms performed in hardware, it simply transmits the CRC value after the checked range (rather than sending a bit-reversed complement so that the residue always ends up at a known value).
 
 The polynomial chosen is somewhat unusual; it doesn't appear in [Koopman et al](http://users.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf). 
 
