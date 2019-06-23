@@ -275,6 +275,8 @@ bool cSHT3x::processResultsRaw(
 
     fResult = this->processResultsRaw(buf, mRaw);
     mRaw.extract(tfrac, rhfrac);
+
+    return fResult;
     }
 
 bool cSHT3x::processResultsRaw(
