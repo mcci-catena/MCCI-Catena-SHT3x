@@ -66,7 +66,7 @@ static constexpr std::uint32_t kVersion = makeVersion(0,2,0,0);
 class cSHT3x
     {
 private:
-    static constexpr bool kfDebug = true;
+    static constexpr bool kfDebug = false;
 
 public:
     // the address type:
