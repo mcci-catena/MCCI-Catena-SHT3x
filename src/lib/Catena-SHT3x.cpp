@@ -18,18 +18,18 @@ Author:
 using namespace McciCatenaSht3x;
 
 
-bool cSHT_3x::begin(void)
+bool cSHT3x::begin(void)
     {
     this->m_wire->begin();
     return this->reset();
     }
 
-void cSHT_3x::end(void)
+void cSHT3x::end(void)
     {
     this->reset();
     }
 
-bool cSHT_3x::reset(void) const
+bool cSHT3x::reset(void) const
     {
     if (this->writeCommand(Command::SoftReset))
         {
@@ -40,7 +40,7 @@ bool cSHT_3x::reset(void) const
         return false;
     }
 
-cSHT_3x::Status_t cSHT_3x::getStatus() const
+cSHT3x::Status_t cSHT3x::getStatus() const
     {
     bool ok;
     std::uint8_t buf[3];
@@ -65,7 +65,7 @@ cSHT_3x::Status_t cSHT_3x::getStatus() const
         }
     }
 
-bool cSHT_3x::getHeater(void) const
+bool cSHT3x::getHeater(void) const
     {
     Status_t s;
 
@@ -77,10 +77,10 @@ bool cSHT_3x::getHeater(void) const
         return false;
     }
 
-bool cSHT_3x::getTemperatureHumidity(
+bool cSHT3x::getTemperatureHumidity(
     float &t,
     float &rh,
-    cSHT_3x::Repeatability r
+    cSHT3x::Repeatability r
     ) const
     {
     bool fResult;
@@ -91,9 +91,9 @@ bool cSHT_3x::getTemperatureHumidity(
     return fResult;
     }
 
-bool cSHT_3x::getTemperatureHumidity(
-    cSHT_3x::Measurements &m,
-    cSHT_3x::Repeatability r
+bool cSHT3x::getTemperatureHumidity(
+    cSHT3x::Measurements &m,
+    cSHT3x::Repeatability r
     ) const
     {
     bool fResult;
@@ -113,10 +113,10 @@ bool cSHT_3x::getTemperatureHumidity(
     return fResult;
     }
 
-bool cSHT_3x::getTemperatureHumidityRaw(
+bool cSHT3x::getTemperatureHumidityRaw(
     std::uint16_t &t,
     std::uint16_t &rh,
-    cSHT_3x::Repeatability r
+    cSHT3x::Repeatability r
     ) const
     {
     bool fResult;
@@ -129,9 +129,9 @@ bool cSHT_3x::getTemperatureHumidityRaw(
     return fResult;
     }
 
-bool cSHT_3x::getTemperatureHumidityRaw(
-    cSHT_3x::MeasurementsRaw &mRaw,
-    cSHT_3x::Repeatability r
+bool cSHT3x::getTemperatureHumidityRaw(
+    cSHT3x::MeasurementsRaw &mRaw,
+    cSHT3x::Repeatability r
     ) const
     {
     bool fResult;
@@ -186,7 +186,7 @@ bool cSHT_3x::getTemperatureHumidityRaw(
     return fResult;
     }
 
-std::uint32_t cSHT_3x::startPeriodicMeasurement(Command c) const
+std::uint32_t cSHT3x::startPeriodicMeasurement(Command c) const
     {
     std::uint32_t result = this->PeriodicityToMillis(this->getPeriodicity(c));
 
@@ -207,7 +207,7 @@ std::uint32_t cSHT_3x::startPeriodicMeasurement(Command c) const
     return result;
     }
 
-bool cSHT_3x::getPeriodicMeasurement(float &t, float &rh) const
+bool cSHT3x::getPeriodicMeasurement(float &t, float &rh) const
     {
     bool fResult;
     Measurements m;
@@ -221,8 +221,8 @@ bool cSHT_3x::getPeriodicMeasurement(float &t, float &rh) const
     return fResult;
     }
 
-bool cSHT_3x::getPeriodicMeasurement(
-    cSHT_3x::Measurements &m
+bool cSHT3x::getPeriodicMeasurement(
+    cSHT3x::Measurements &m
     ) const
     {
     MeasurementsRaw mRaw;
@@ -237,7 +237,7 @@ bool cSHT_3x::getPeriodicMeasurement(
     return fResult;
     }
 
-bool cSHT_3x::getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhfrac) const
+bool cSHT3x::getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhfrac) const
     {
     bool fResult;
     MeasurementsRaw mRaw;
@@ -251,7 +251,7 @@ bool cSHT_3x::getPeriodicMeasurementRaw(std::uint16_t &tfrac, std::uint16_t &rhf
     return fResult;
     }
 
-bool cSHT_3x::getPeriodicMeasurementRaw(cSHT_3x::MeasurementsRaw &mRaw) const
+bool cSHT3x::getPeriodicMeasurementRaw(cSHT3x::MeasurementsRaw &mRaw) const
     {
     bool fResult;
     std::uint8_t buf[6];
@@ -266,7 +266,7 @@ bool cSHT_3x::getPeriodicMeasurementRaw(cSHT_3x::MeasurementsRaw &mRaw) const
     }
 
 
-bool cSHT_3x::processResultsRaw(
+bool cSHT3x::processResultsRaw(
     const std::uint8_t (&buf)[6], std::uint16_t &tfrac, std::uint16_t &rhfrac
     ) const
     {
@@ -277,9 +277,9 @@ bool cSHT_3x::processResultsRaw(
     mRaw.extract(tfrac, rhfrac);
     }
 
-bool cSHT_3x::processResultsRaw(
+bool cSHT3x::processResultsRaw(
     const std::uint8_t (&buf)[6],
-    cSHT_3x::MeasurementsRaw &mRaw
+    cSHT3x::MeasurementsRaw &mRaw
     ) const
     {
     mRaw.TemperatureBits = (buf[0] << 8) | buf[1];
@@ -296,7 +296,7 @@ bool cSHT_3x::processResultsRaw(
     return true;
     }
 
-bool cSHT_3x::writeCommand(Command c) const
+bool cSHT3x::writeCommand(Command c) const
     {
     std::uint16_t const cbits = static_cast<std::uint16_t>(c);
     std::uint8_t result;
@@ -330,7 +330,7 @@ bool cSHT_3x::writeCommand(Command c) const
         return true;
     }
 
-bool cSHT_3x::readResponse(std::uint8_t *buf, size_t nBuf) const
+bool cSHT3x::readResponse(std::uint8_t *buf, size_t nBuf) const
     {
     bool ok;
     unsigned nResult;
@@ -375,7 +375,7 @@ bool cSHT_3x::readResponse(std::uint8_t *buf, size_t nBuf) const
     return (nResult == nBuf);
     }
 
-std::uint8_t cSHT_3x::crc(const std::uint8_t * buf, size_t nBuf, std::uint8_t crc8)
+std::uint8_t cSHT3x::crc(const std::uint8_t * buf, size_t nBuf, std::uint8_t crc8)
     {
     static const std::uint8_t crcTable[16] =
         {

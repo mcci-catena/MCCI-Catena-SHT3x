@@ -3,7 +3,7 @@
 Module: sht3x-simple.ino
 
 Function:
-        Simple example for SHT-3x sensor.
+        Simple example for SHT3x sensor.
 
 Copyright and License:
         See accompanying LICENSE file.
@@ -38,7 +38,7 @@ using namespace McciCatenaSht3x;
 |
 \****************************************************************************/
 
-cSHT_3x gSht3x {Wire, cSHT_3x::Address_t::A};
+cSHT3x gSht3x {Wire, cSHT3x::Address_t::A};
 
 /****************************************************************************\
 |
@@ -54,7 +54,7 @@ void setup()
     while (! Serial)
         yield();
 
-    Serial.println("SHT-3x Simple Test");
+    Serial.println("SHT3x Simple Test");
     if (! gSht3x.begin())
         {
         for (;;)
@@ -67,7 +67,7 @@ void setup()
 
 void loop()
     {
-    cSHT_3x::Measurements m;
+    cSHT3x::Measurements m;
 
     if (! gSht3x.getTemperatureHumidity(m))
         {
