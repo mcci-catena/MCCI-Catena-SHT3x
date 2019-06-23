@@ -61,6 +61,7 @@ cSHT3x::Status_t cSHT3x::getStatus() const
         }
     else
         {
+        /* return the explicitly-invalid status value */
         return Status_t();
         }
     }
@@ -87,6 +88,8 @@ bool cSHT3x::getTemperatureHumidity(
     Measurements m;
 
     fResult = this->getTemperatureHumidity(m, r);
+
+    /* set t, rh from values in m */
     m.extract(t, rh);
     return fResult;
     }
@@ -103,6 +106,7 @@ bool cSHT3x::getTemperatureHumidity(
 
     if (fResult)
         {
+        /* set m from bits in mRaw */
         m.set(mRaw);
         }
     else
@@ -124,6 +128,7 @@ bool cSHT3x::getTemperatureHumidityRaw(
 
     fResult = this->getTemperatureHumidityRaw(mRaw, r);
     if (fResult)
+        /* set t, rh from bits in mRaw */
         mRaw.extract(t, rh);
 
     return fResult;
@@ -215,6 +220,7 @@ bool cSHT3x::getPeriodicMeasurement(float &t, float &rh) const
     fResult = this->getPeriodicMeasurement(m);
     if (fResult)
         {
+        /* set t, rh from values in m */
         m.extract(t, rh);
         }
 
@@ -274,6 +280,8 @@ bool cSHT3x::processResultsRaw(
     bool fResult;
 
     fResult = this->processResultsRaw(buf, mRaw);
+
+    /* extract tfrac, rhfrac from values in mRaw */
     mRaw.extract(tfrac, rhfrac);
 
     return fResult;
@@ -379,6 +387,7 @@ bool cSHT3x::readResponse(std::uint8_t *buf, size_t nBuf) const
 
 std::uint8_t cSHT3x::crc(const std::uint8_t * buf, size_t nBuf, std::uint8_t crc8)
     {
+    /* see CRC-8-Calc.md for a little info on this */
     static const std::uint8_t crcTable[16] =
         {
         0x00, 0x31, 0x62, 0x53, 0xc4, 0xf5, 0xa6, 0x97,
@@ -395,8 +404,10 @@ std::uint8_t cSHT3x::crc(const std::uint8_t * buf, size_t nBuf, std::uint8_t crc
         crc8 = (crc8 << 4) ^ crcTable[p];
 
         // calculate second nibble
-        // b <<= 4;
-        // p = (b ^ crc8) >> 4;
+        // this could be written as:
+        //      b <<= 4;
+        //      p = (b ^ crc8) >> 4;
+        // but it's more effective as:
         p = ((crc8 >> 4) ^ b) & 0xF;
         crc8 = (crc8 << 4) ^ crcTable[p];
         }
