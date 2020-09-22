@@ -2,7 +2,7 @@
 
 The SHT3x family uses a special CRC-8 polynomial to generate check codes for the input data, documented in the data sheet. Unlike many CRC algorithms performed in hardware, it simply transmits the CRC value after the checked range (rather than sending a bit-reversed complement so that the residue always ends up at a known value).
 
-The polynomial chosen is somewhat unusual; it doesn't appear in [Koopman et al](http://users.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf). 
+The polynomial chosen is somewhat unusual; it doesn't appear in otherwise-comprehensive lists like [Koopman et al](http://users.ece.cmu.edu/~koopman/roses/dsn04/koopman04_crc_poly_embedded.pdf).
 
 Checking the CRC requires calculating the value on the received data. There are many possible approaches.
 
@@ -10,7 +10,7 @@ Checking the CRC requires calculating the value on the received data. There are 
 - It's very easy to do a byte-wise calculation. An 8-bit CRC is a function of the input value and the input CRC (and in fact is a function of the XOR of the input value and the input CRC). It's easy to generate a lookup table.
 - Although it was easy to generate and use a 256-byte lookup table, this seemed excessive given that the input strings to be checked are only 2 bytes long. On the other hand, I didn't like the notion of doing a bitwise CRC; it seems a waste of battery power.
 
-I struggled for a while to create a 4-bit version of the CRC-8 algorigthm. Finally, I broke down and built a gate model and did algebra. This file documents that work.
+I struggled for a while to create a 4-bit version of the CRC-8 algorithm. Finally, I broke down and built a gate model and did algebra. This file documents that work.
 
 ## Verilog model
 
@@ -35,9 +35,9 @@ begin
 end
 ```
 
-Using this, I cranked through the algebra to evolve this into two clocks, three clocks and finally four clocks. My notation is terrible, but I use 
+Using this, I cranked through the algebra to evolve this into two clocks, three clocks and finally four clocks. My notation is terrible, but I use horizontal distance to represent time.
 
-2 clocks:
+Two clocks:
 
 ```verilog
 assign p7 = crc[7] ^ d[7]
@@ -53,7 +53,7 @@ crc[1] <=          p7
 crc[0] <=               p6
 ```
 
-3 clocks:
+Three clocks:
 
 ```verilog
 assign p7 = crc[7] ^ d[7];
@@ -91,7 +91,7 @@ crc[0] <=                               (p7 ^ p4)
 
 Hint: you can view the contributions of each clock left-to-right across the columns.
 
-From this it was clear that the C++ calculation has two inputs. The first is based on the next 4 bits of the input stream, XORed with the top bits of the CRC; those bits uniquely determine the byte containing the p[x] terms, which can be grabbed from a table. The second input is bits 0..3 of the crc, which it must be shifted left to bits 7..4, prior to combining with the bits from the table.
+From this it was clear that the C++ calculation has two inputs. The first is based on the next 4 bits of the input stream, XORed with the top bits of the CRC; those bits uniquely determine the byte containing the p[x] terms, which can be grabbed from a table. The second input is bits 0..3 of the CRC, which it must be shifted left to bits 7..4, prior to combining with the bits from the table.
 
 So we end up with this code, which can be hand-optimized further, but is enough for now.
 

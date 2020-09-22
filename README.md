@@ -11,7 +11,7 @@ This library provides a simple interface to Sensirion SHT31, SHT32, and SHT35 se
 - [Namespace](#namespace)
 - [Instance Object](#instance-object)
 - [Converting between modes and command words](#converting-between-modes-and-command-words)
-	- [The command constants](#the-command-constants)
+        - [The command constants](#the-command-constants)
 
 <!-- /TOC -->
 ## Introduction
@@ -24,7 +24,7 @@ Clients interact with Sensirion sensors via the following sequence.
 
 3. If the client needs to make periodic measurements, the client first calls `cSHT3x::startPeriodicMeasurement()` to set the parameters for the periodic measurement, and start the acquisition process. The result of this call is the number of milliseconds per measurement.
 
-   To collect results, the client occasionaly calls `cSHT3x::getPeriodicMeasurement()` or `cSHT3x::getPeriodicMeasurementRaw()`. If a measurement is available, it will be returned, and the method returns `true`; otherwise, the method returns `false`.  To save power, the client should delay the appropriate number of milliseconds between calls (as indicated by the result of `cSHT3x::startPeriodicMeasurement()`).
+   To collect results, the client occasionally calls `cSHT3x::getPeriodicMeasurement()` or `cSHT3x::getPeriodicMeasurementRaw()`. If a measurement is available, it will be returned, and the method returns `true`; otherwise, the method returns `false`.  To save power, the client should delay the appropriate number of milliseconds between calls (as indicated by the result of `cSHT3x::startPeriodicMeasurement()`).
 
 Measurements are returned in structures (`cSHT3x::Measurements` or `cSHT3x::MeasurementsRaw`, respectively.) These structures have some utility methods:
 
@@ -39,7 +39,7 @@ A number of utility methods allow the client to manage the sensor.
 - By default, the library checks CRCs on received data. `cSHT3x::getCrcMode()` and `cSHT3x::setCrcMode()` allow the client to query and change whether the library checks (`true`) or ignores (`false`) CRC.
 - The sensor includes a heater that's intended for diagnostic purposes. (Turn on the heater, and make sure the temperature changes.) `cSHT3x::getHeater()` queries the current state of the heater, and `cSHT3x::setHeater(bool fOn)` turns it on or off.
 - `cSHT3x::getStatus()` reads the current value of the status register. The value is returned as an opaque structure of type `cSHT3x::Status_t`. Methods are provided to allow clients to query individual bits. A status also has an explicit `invalid` state, which can be separately queried.
-- For convenience, static methods are provided to convert between raw (`uint16_t`) data and engineering units. `cSHT3x::rawToCelsius()` and `cSHT3x::rawRHtoPercent()` convert raw data to engineering units. `cSHT3x::celsiusToRawT()` and `cSHT3x::percentRHtoRaw()` convert engineering units to raw data. (This may be useful for precalculating alarms, to save on floating point calculations at run time.)
+- For convenience, static methods are provided to convert between raw (`uint16_t`) data and engineering units. `cSHT3x::rawToCelsius()` and `cSHT3x::rawRHtoPercent()` convert raw data to engineering units. `cSHT3x::celsiusToRawT()` and `cSHT3x::percentRHtoRaw()` convert engineering units to raw data. (This may be useful for pre-calculating alarms, to save on floating point calculations at run time.)
 - `cSHT3x::isDebug()` returns `true` if this is a debug build, `false` otherwise. It's a `constexpr`, so using this in an `if()` statement is equivalent to a `#if` -- the compiler will optimize away the code if this is not a debug build.
 
 ## Header File
@@ -54,13 +54,13 @@ None, beyond the normal Arduino library `<Wire.h>`.  It can be used with [Catena
 
 ## Example Scripts
 
-See [sht3x-simple](./examples/sht3x-simple/sht3x-simple.ino). Sht3x-simple reads and displays the temperature and humidity once a second, using the simple APIs.
+See [`sht3x-simple`](./examples/sht3x-simple/sht3x-simple.ino). `Sht3x-simple` reads and displays the temperature and humidity once a second, using the simple APIs.
 
-![Screenshot of sht3x-simple.ino in operation](./assets/sht3x-simple-screenshot.png)
+![Screenshot of `sht3x-simple.ino` in operation](./assets/sht3x-simple-screenshot.png)
 
 ## Namespace
 
-All definitions are wrapped in a namespace. Normally, after incluing the header file, you'll want to say:
+All definitions are wrapped in a namespace. Normally, after including the header file, you'll want to say:
 
 ```c++
 using namespace McciCatenaSht3x;
@@ -103,7 +103,7 @@ cSHT3x mySHT3x(
 
 ## Converting between modes and command words
 
-The SHT3x datasheet doesn't give the algorighm (if any) for computing the internal checksums for commands, nor the internal bit structure of the commands. Despite the obvious regularity, we decided to resort to some hairy `constexpr` functions to allow us to build and decode commmands cleanly.
+The SHT3x datasheet doesn't give the algorithm (if any) for computing the internal checksums for commands, nor the internal bit structure of the commands. Despite the obvious regularity, we decided to resort to some hairy `constexpr` functions to allow us to build and decode commands cleanly.
 
 ```c++
 enum McciCatenaSht3x::cSHT3x::Repeatability : std::int8_t { Error=-1, NA, Low, Medium, High };
