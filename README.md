@@ -1,6 +1,8 @@
 # MCCI Catena&reg; SHT3x Sensor Library
 
-This library provides a simple interface to Sensirion SHT31, SHT32, and SHT35 sensors. Although we tested this on the MCCI Catena 4618, there are no dependencies on MCCI hardware; this should work equally well with Adafruit breakout boards, etc.
+This library provides a simple interface to Sensirion SHT31, SHT32, and SHT35 sensors. Although we tested this on the [MCCI Catena 4618](https://mcci.io/catena4618), there are no dependencies on MCCI hardware; this should work equally well with Adafruit breakout boards, etc.
+
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/MCCI-Catena-SHT3x.svg)](https://github.com/mcci-catena/MCCI-Catena-SHT3x/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/MCCI-Catena-SHT3x/latest.svg)](https://github.com/mcci-catena/MCCI-Catena-SHT3x/compare/v0.2.1...master) <!-- [![Arduino CI](https://img.shields.io/github/workflow/status/mcci-catena/MCCI-Catena-SHT3x/Arduino%20CI)](https://github.com/mcci-catena/MCCI-Catena-SHT3x/actions) -->
 
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
@@ -170,3 +172,30 @@ enum McciCatena::cSHT3x::Command_t : std::uint16_t {
     GetStatus                   = 0xF32D,
 };
 ```
+
+## Meta
+
+### Release History
+
+- v0.2.1 is a patch release
+
+  - No changes to the library apart from version.
+  - Change `name=` value in `library.properties` so that IDE library installation uses the same name as a `git clone` of the repository ([#3]((https://github.com/mcci-catena/MCCI-Catena-SHT3x/issues/3))
+
+  - Add a `library.properties` dependency on [`Catena Arduino Platform`](https://github.com/mcci-catena/Catena-Arduino-Platform).
+
+- v0.2.0 is the first official release.
+
+### License
+
+This repository is released under the [MIT](./LICENSE) license. Commercial licenses are also available from MCCI Corporation.
+
+### Support Open Source Hardware and Software
+
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+
+For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
+
+### Trademarks
+
+MCCI and MCCI Catena are registered trademarks of MCCI Corporation. LoRaWAN is a registered trademark of the LoRa Alliance. LoRa is a registered trademark of Semtech Corporation. All other marks are the property of their respective owners.
